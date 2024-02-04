@@ -1,5 +1,6 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export interface IUser extends Document {
   name: string;
@@ -71,6 +72,28 @@ userSchema.methods.comparePassword = async function (
   enteredPassword: string
 ): Promise<boolean> {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Sign Access token
+userSchema.methods.SignAccessToken = function () {
+  try {
+    return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN_SECRET || "", {
+      expiresIn: "5m",
+    });
+  } catch (error) {
+    throw new Error("Error signing access token");
+  }
+};
+
+// Sign Refresh token
+userSchema.methods.SignRefreshToken = function () {
+  try {
+    return jwt.sign({ id: this._id }, process.env.REFRESH_TOKEN_SECRET || "", {
+      expiresIn: "3d",
+    });
+  } catch (error) {
+    throw new Error("Error signing refresh token");
+  }
 };
 
 const userModel: Model<IUser> = mongoose.model("User", userSchema);
