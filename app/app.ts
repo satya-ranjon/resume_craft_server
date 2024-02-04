@@ -1,6 +1,11 @@
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import { configDotenv } from "dotenv";
+import authRouter from "../routes/auth.route";
+import {
+  catchAllUndefinedRoutes,
+  globalErrorHandler,
+} from "../middlewares/error";
 
 configDotenv();
 
@@ -12,5 +17,13 @@ app.use(cors({ origin: process.env.CORS_ORIGIN }));
 app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
   res.send("server is run....");
 });
+
+app.use("/auth/v1", authRouter);
+
+// handling undefined routes
+app.use(catchAllUndefinedRoutes);
+
+// Global error handler
+app.use(globalErrorHandler);
 
 export default app;
