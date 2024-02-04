@@ -7,6 +7,7 @@ import {
 import ErrorHandler from "../utils/errorHandler";
 import userModel from "../models/user.model";
 import sendMail from "../utils/sendMail";
+import { sendToken } from "../utils/jwt";
 
 interface IUserRegister {
   name: string;
@@ -91,6 +92,39 @@ export const userActivation = catchAsyncError(
         success: true,
         user: { name: newUser.name, email: newUser.email },
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+interface IUserLogin {
+  email: string;
+  password: string;
+}
+
+export const userLogin = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, password } = req.body as IUserLogin;
+
+      if (!email || !password) {
+        return next(
+          new ErrorHandler("Please enter your email and password !", 400)
+        );
+      }
+      const user = await userModel.findOne({ email }).select("+password");
+
+      if (!user) {
+        return next(new ErrorHandler("Invalid email or password !", 400));
+      }
+      const isPasswordMatch = await user.comparePassword(password);
+
+      if (!isPasswordMatch) {
+        return next(new ErrorHandler("Invalid email or password", 400));
+      }
+
+      sendToken(user, 200, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
