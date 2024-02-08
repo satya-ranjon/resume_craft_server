@@ -6,12 +6,13 @@ import {
   catchAllUndefinedRoutes,
   globalErrorHandler,
 } from "../middlewares/error";
+import resumeRoute from "../routes/resume.route";
 
 configDotenv();
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
-app.use(cors({ origin: process.env.CORS_ORIGIN }));
+app.use(cors({ origin: ["http://localhost:5173"] }));
 
 // router
 app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
@@ -19,6 +20,7 @@ app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
 });
 
 app.use("/auth/v1", authRouter);
+app.use("/resume/v1", resumeRoute);
 
 // handling undefined routes
 app.use(catchAllUndefinedRoutes);
