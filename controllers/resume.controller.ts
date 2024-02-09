@@ -27,3 +27,20 @@ export const createOrUpdateResume = catchAsyncError(
     }
   }
 );
+
+export const getSingleResume = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+
+      const resume = await ResumeModel.findById(id);
+
+      res.status(201).json({
+        success: true,
+        resume: resume,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);

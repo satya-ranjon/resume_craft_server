@@ -1,6 +1,24 @@
 import { Document } from "mongoose";
 
+export interface IResume extends Document {
+  _id: string | number;
+  templateId: string;
+  avatar: string;
+  personalInfo: IResumePersonalInfo;
+  professionalSummary: string;
+  workExperience: TypeOfSingleEmploymentHistory[];
+  skills: TypeOfSkill[];
+  languages: TypeOfLanguage[];
+  references: TypeOfReference[];
+  educations: TypeOfSingleEducationHistory[];
+  socialProfiles: TypeOfSingleSocialWebSite[];
+  sectionTitles: TypeOfSectionTitle;
+  zoom: number;
+  size: {};
+  style: {};
+}
 export interface IResumePersonalInfo extends Document {
+  _id: string | number;
   jobTitle: string;
   firstName: string;
   lastName: string;
@@ -63,6 +81,7 @@ export interface TypeOfSingleSocialWebSite extends Document {
 }
 
 export interface TypeOfSectionTitle extends Document {
+  _id: string | number;
   personalInfo: string;
   professionalSummary: string;
   workExperience: string;
@@ -71,28 +90,4 @@ export interface TypeOfSectionTitle extends Document {
   references: string;
   educations: string;
   socialProfiles: string;
-}
-
-export interface ISetResumeSize extends Document {
-  height: string;
-  width: string;
-}
-
-export interface IResume extends Document {
-  _id: string | number;
-  templateId: string;
-  avatar: string;
-  personalInfo: IResumePersonalInfo;
-  professionalSummary: string;
-  workExperience: TypeOfSingleEmploymentHistory[];
-  skills: TypeOfSkill[];
-  languages: TypeOfLanguage[];
-  references: TypeOfReference[];
-  educations: TypeOfSingleEducationHistory[];
-  socialProfiles: TypeOfSingleSocialWebSite[];
-  sectionTitles: TypeOfSectionTitle;
-  zoom: number;
-  theme: string;
-  themeOptions: string[];
-  size: ISetResumeSize;
 }

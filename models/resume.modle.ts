@@ -2,7 +2,6 @@ import mongoose, { Schema } from "mongoose";
 import {
   IResume,
   IResumePersonalInfo,
-  ISetResumeSize,
   TypeOfLanguage,
   TypeOfReference,
   TypeOfSectionTitle,
@@ -13,6 +12,7 @@ import {
 } from "../@types/resume";
 
 const ResumePersonalInfoSchema = new Schema<IResumePersonalInfo>({
+  _id: Schema.Types.Mixed,
   jobTitle: String,
   firstName: String,
   lastName: String,
@@ -77,6 +77,7 @@ const SocialWebSiteSchema = new Schema<TypeOfSingleSocialWebSite>({
 });
 
 const SectionTitleSchema = new Schema<TypeOfSectionTitle>({
+  _id: Schema.Types.Mixed,
   personalInfo: String,
   professionalSummary: String,
   workExperience: String,
@@ -85,11 +86,6 @@ const SectionTitleSchema = new Schema<TypeOfSectionTitle>({
   references: String,
   educations: String,
   socialProfiles: String,
-});
-
-const SetResumeSizeSchema = new Schema<ISetResumeSize>({
-  height: String,
-  width: String,
 });
 
 // Define main Resume schema
@@ -108,9 +104,8 @@ const ResumeSchema = new Schema<IResume>(
     socialProfiles: [SocialWebSiteSchema],
     sectionTitles: SectionTitleSchema,
     zoom: Number,
-    theme: String,
-    themeOptions: [String],
     size: {},
+    style: {},
   },
   { timestamps: true }
 );
