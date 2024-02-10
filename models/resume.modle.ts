@@ -92,6 +92,8 @@ const SectionTitleSchema = new Schema<TypeOfSectionTitle>({
 const ResumeSchema = new Schema<IResume>(
   {
     _id: Schema.Types.Mixed,
+    historyId: Schema.Types.Mixed,
+    user: { type: Schema.Types.ObjectId, ref: "User" },
     templateId: { type: String, required: true },
     avatar: String,
     personalInfo: ResumePersonalInfoSchema,
@@ -107,7 +109,7 @@ const ResumeSchema = new Schema<IResume>(
     size: {},
     style: {},
   },
-  { timestamps: true }
+  { timestamps: false, versionKey: false }
 );
 
 // Compile the schema into a model
