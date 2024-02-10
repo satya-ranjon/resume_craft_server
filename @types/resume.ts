@@ -1,7 +1,9 @@
-import { Document } from "mongoose";
+import { Document, Schema } from "mongoose";
 
 export interface IResume extends Document {
   _id: string | number;
+  historyId: string | number;
+  user: Schema.Types.ObjectId;
   templateId: string;
   avatar: string;
   personalInfo: IResumePersonalInfo;

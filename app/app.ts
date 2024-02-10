@@ -7,6 +7,8 @@ import {
   globalErrorHandler,
 } from "../middlewares/error";
 import resumeRoute from "../routes/resume.route";
+import userRoute from "../routes/user.route";
+import historyRoute from "../routes/history.route";
 
 configDotenv();
 
@@ -21,6 +23,8 @@ app.get("/", (_req: Request, res: Response, _next: NextFunction) => {
 
 app.use("/auth/v1", authRouter);
 app.use("/resume/v1", resumeRoute);
+app.use("/user/v1", userRoute);
+app.use("/history/v1", historyRoute);
 
 // handling undefined routes
 app.use(catchAllUndefinedRoutes);

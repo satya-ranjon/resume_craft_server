@@ -33,7 +33,7 @@ export const getSingleResume = catchAsyncError(
     try {
       const { id } = req.params;
 
-      const resume = await ResumeModel.findById(id);
+      const resume = await ResumeModel.findById(id).select("-user");
 
       res.status(201).json({
         success: true,
