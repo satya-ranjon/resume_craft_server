@@ -9,6 +9,8 @@ const dotenv_1 = require("dotenv");
 const auth_route_1 = __importDefault(require("../routes/auth.route"));
 const error_1 = require("../middlewares/error");
 const resume_route_1 = __importDefault(require("../routes/resume.route"));
+const user_route_1 = __importDefault(require("../routes/user.route"));
+const history_route_1 = __importDefault(require("../routes/history.route"));
 (0, dotenv_1.configDotenv)();
 const app = (0, express_1.default)();
 app.use(express_1.default.json({ limit: "50mb" }));
@@ -19,6 +21,8 @@ app.get("/", (_req, res, _next) => {
 });
 app.use("/auth/v1", auth_route_1.default);
 app.use("/resume/v1", resume_route_1.default);
+app.use("/user/v1", user_route_1.default);
+app.use("/history/v1", history_route_1.default);
 // handling undefined routes
 app.use(error_1.catchAllUndefinedRoutes);
 // Global error handler

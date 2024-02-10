@@ -34,7 +34,7 @@ exports.createOrUpdateResume = (0, error_1.catchAsyncError)((req, res, next) => 
 exports.getSingleResume = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const resume = yield resume_modle_1.default.findById(id);
+        const resume = yield resume_modle_1.default.findById(id).select("-user");
         res.status(201).json({
             success: true,
             resume: resume,

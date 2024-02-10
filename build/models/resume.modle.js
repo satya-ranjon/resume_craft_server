@@ -94,6 +94,8 @@ const SectionTitleSchema = new mongoose_1.Schema({
 // Define main Resume schema
 const ResumeSchema = new mongoose_1.Schema({
     _id: mongoose_1.Schema.Types.Mixed,
+    historyId: mongoose_1.Schema.Types.Mixed,
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
     templateId: { type: String, required: true },
     avatar: String,
     personalInfo: ResumePersonalInfoSchema,
@@ -108,7 +110,7 @@ const ResumeSchema = new mongoose_1.Schema({
     zoom: Number,
     size: {},
     style: {},
-}, { timestamps: true });
+}, { timestamps: false, versionKey: false });
 // Compile the schema into a model
 const ResumeModel = mongoose_1.default.model("Resume", ResumeSchema);
 exports.default = ResumeModel;
