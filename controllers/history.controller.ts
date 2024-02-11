@@ -8,18 +8,23 @@ import HistoryModel, { IHistory } from "../models/history.modle";
 import { catchAsyncError } from "../middlewares/error";
 import ErrorHandler from "../utils/errorHandler";
 
-export const createHistory = catchAsyncError(
+export const createUpdateHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: IHistory = req.body;
 
-      const history = await HistoryModel.create(data);
-      delete history.__v;
+      const existing = await HistoryModel.findById(data._id);
+
+      const existinghistory = await HistoryModel.findOneAndUpdate(
+        { _id: data._id },
+        data,
+        { new: true, upsert: true }
+      );
 
       res.status(201).json({
         success: true,
-        message: `History created successfully.`,
-        history: history,
+        message: `History ${existing ? "updated" : "created"}  successfully.`,
+        history: existinghistory,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));

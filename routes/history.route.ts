@@ -1,7 +1,7 @@
 import express from "express";
 
 import {
-  createHistory,
+  createUpdateHistory,
   uploadHistoryThumbnail,
   userHistory,
 } from "../controllers/history.controller";
@@ -9,7 +9,7 @@ import {
 const historyRoute = express.Router();
 
 historyRoute.get("/", userHistory);
-historyRoute.post("/create", createHistory);
+historyRoute.post("/create", createUpdateHistory);
 historyRoute.patch("/upload/:id", uploadHistoryThumbnail);
 
 export default historyRoute;

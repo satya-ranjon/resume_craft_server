@@ -2,6 +2,7 @@ import mongoose, { Document, Schema } from "mongoose";
 
 export interface IHistory extends Document {
   _id: string | number;
+  title: string;
   user: Schema.Types.ObjectId;
   resumeId: string | number;
   thumbnail: {
@@ -14,6 +15,7 @@ export interface IHistory extends Document {
 const historySchema = new Schema<IHistory>(
   {
     _id: { type: Schema.Types.Mixed, required: true },
+    title: String,
     user: { type: Schema.Types.ObjectId, ref: "User" },
     resumeId: { type: Schema.Types.Mixed, required: true },
     thumbnail: {
