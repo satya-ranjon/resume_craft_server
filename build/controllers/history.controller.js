@@ -12,21 +12,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadHistoryThumbnail = exports.userHistory = exports.createHistory = void 0;
+exports.uploadHistoryThumbnail = exports.userHistory = exports.createUpdateHistory = void 0;
 const multerHandle_1 = __importDefault(require("../middlewares/multerHandle"));
 const cloudinary_services_1 = require("../services/cloudinary.services");
 const history_modle_1 = __importDefault(require("../models/history.modle"));
 const error_1 = require("../middlewares/error");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
-exports.createHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.createUpdateHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body;
-        const history = yield history_modle_1.default.create(data);
-        delete history.__v;
+        const existing = yield history_modle_1.default.findById(data._id);
+        const existinghistory = yield history_modle_1.default.findOneAndUpdate({ _id: data._id }, data, { new: true, upsert: true });
         res.status(201).json({
             success: true,
-            message: `History created successfully.`,
-            history: history,
+            message: `History ${existing ? "updated" : "created"}  successfully.`,
+            history: existinghistory,
         });
     }
     catch (error) {

@@ -26,6 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
 const historySchema = new mongoose_1.Schema({
     _id: { type: mongoose_1.Schema.Types.Mixed, required: true },
+    title: String,
     user: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
     resumeId: { type: mongoose_1.Schema.Types.Mixed, required: true },
     thumbnail: {

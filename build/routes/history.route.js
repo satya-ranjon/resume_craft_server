@@ -7,6 +7,6 @@ const express_1 = __importDefault(require("express"));
 const history_controller_1 = require("../controllers/history.controller");
 const historyRoute = express_1.default.Router();
 historyRoute.get("/", history_controller_1.userHistory);
-historyRoute.post("/create", history_controller_1.createHistory);
+historyRoute.post("/create", history_controller_1.createUpdateHistory);
 historyRoute.patch("/upload/:id", history_controller_1.uploadHistoryThumbnail);
 exports.default = historyRoute;
