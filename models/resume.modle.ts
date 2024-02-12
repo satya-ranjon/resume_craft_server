@@ -95,7 +95,10 @@ const ResumeSchema = new Schema<IResume>(
     historyId: Schema.Types.Mixed,
     user: { type: Schema.Types.ObjectId, ref: "User" },
     templateId: { type: String, required: true },
-    avatar: String,
+    avatar: {
+      public_id: String,
+      url: String,
+    },
     personalInfo: ResumePersonalInfoSchema,
     professionalSummary: String,
     workExperience: [SingleEmploymentHistorySchema],

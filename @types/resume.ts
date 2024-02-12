@@ -5,7 +5,10 @@ export interface IResume extends Document {
   historyId: string | number;
   user: Schema.Types.ObjectId;
   templateId: string;
-  avatar: string;
+  avatar: {
+    public_id: string;
+    url: string;
+  };
   personalInfo: IResumePersonalInfo;
   professionalSummary: string;
   workExperience: TypeOfSingleEmploymentHistory[];
