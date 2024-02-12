@@ -8,4 +8,5 @@ const resume_controller_1 = require("../controllers/resume.controller");
 const resumeRoute = express_1.default.Router();
 resumeRoute.post("/create", resume_controller_1.createOrUpdateResume);
 resumeRoute.get("/:id", resume_controller_1.getSingleResume);
+resumeRoute.patch("/upload/:id", resume_controller_1.uploadReasumeAvatar);
 exports.default = resumeRoute;

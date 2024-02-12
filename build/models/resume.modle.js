@@ -97,7 +97,10 @@ const ResumeSchema = new mongoose_1.Schema({
     historyId: mongoose_1.Schema.Types.Mixed,
     user: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
     templateId: { type: String, required: true },
-    avatar: String,
+    avatar: {
+        public_id: String,
+        url: String,
+    },
     personalInfo: ResumePersonalInfoSchema,
     professionalSummary: String,
     workExperience: [SingleEmploymentHistorySchema],
