@@ -9,4 +9,5 @@ const historyRoute = express_1.default.Router();
 historyRoute.get("/", history_controller_1.userHistory);
 historyRoute.post("/create", history_controller_1.createUpdateHistory);
 historyRoute.patch("/upload/:id", history_controller_1.uploadHistoryThumbnail);
+historyRoute.delete("/delete/:id", history_controller_1.deleteHistory);
 exports.default = historyRoute;

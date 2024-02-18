@@ -24,16 +24,22 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importStar(require("mongoose"));
-const historySchema = new mongoose_1.Schema({
-    _id: { type: mongoose_1.Schema.Types.Mixed, required: true },
-    title: String,
+const CoverLetterSchema = new mongoose_1.Schema({
+    _id: mongoose_1.Schema.Types.Mixed,
+    historyId: mongoose_1.Schema.Types.Mixed,
+    templateId: { type: String, required: true },
     user: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
-    templateId: { type: mongoose_1.Schema.Types.Mixed, required: true },
-    thumbnail: {
-        public_id: String,
-        url: String,
-    },
-    type: { type: String, enum: ["resume", "coverletter", "portfolio"] },
-}, { timestamps: true, versionKey: false });
-const HistoryModel = mongoose_1.default.model("History", historySchema);
-exports.default = HistoryModel;
+    fullName: String,
+    JobTitle: String,
+    address: String,
+    email: String,
+    phoneNumber: String,
+    companyName: String,
+    managerName: String,
+    details: String,
+    zoom: Number,
+    size: {},
+    style: {},
+}, { timestamps: false, versionKey: false });
+const CoverLetterModel = mongoose_1.default.model("CoverLetter", CoverLetterSchema);
+exports.default = CoverLetterModel;

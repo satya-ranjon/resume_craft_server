@@ -12,17 +12,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.uploadHistoryThumbnail = exports.userHistory = exports.createUpdateHistory = void 0;
+exports.deleteHistory = exports.uploadHistoryThumbnail = exports.userHistory = exports.createUpdateHistory = void 0;
 const multerHandle_1 = __importDefault(require("../middlewares/multerHandle"));
 const cloudinary_services_1 = require("../services/cloudinary.services");
 const history_modle_1 = __importDefault(require("../models/history.modle"));
 const error_1 = require("../middlewares/error");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
+const resume_modle_1 = __importDefault(require("../models/resume.modle"));
+const coverLetter_modle_1 = __importDefault(require("../models/coverLetter.modle"));
 exports.createUpdateHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body;
+        const userId = "65bfd0f85443cc82b0f3f504";
         const existing = yield history_modle_1.default.findById(data._id);
-        const existinghistory = yield history_modle_1.default.findOneAndUpdate({ _id: data._id }, data, { new: true, upsert: true });
+        const existinghistory = yield history_modle_1.default.findOneAndUpdate({ _id: data._id }, Object.assign(Object.assign({}, data), { user: userId }), { new: true, upsert: true });
         res.status(201).json({
             success: true,
             message: `History ${existing ? "updated" : "created"}  successfully.`,
@@ -48,7 +51,7 @@ exports.userHistory = (0, error_1.catchAsyncError)((_req, res, next) => __awaite
     }
 }));
 const uploadHistoryThumbnail = (req, res, next) => {
-    multerHandle_1.default.single("resumeCraftResumeThumbnail")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
+    multerHandle_1.default.single("Thumbnail")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
         try {
             if (err) {
                 return next(err);
@@ -83,3 +86,45 @@ const uploadHistoryThumbnail = (req, res, next) => {
     }));
 };
 exports.uploadHistoryThumbnail = uploadHistoryThumbnail;
+exports.deleteHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const userId = "65bfd0f85443cc82b0f3f504";
+        const history = yield history_modle_1.default.findOne({
+            _id: id,
+            user: userId,
+        });
+        if (history && history.templateId) {
+            const deletedTemplate = yield Promise.all([
+                history_modle_1.default.findOneAndDelete({
+                    _id: history._id,
+                    user: userId,
+                }),
+                resume_modle_1.default.findOneAndDelete({
+                    _id: history.templateId,
+                    user: userId,
+                }),
+                coverLetter_modle_1.default.findOneAndDelete({
+                    _id: history.templateId,
+                    user: userId,
+                }),
+            ]);
+            res.status(201).json({
+                success: true,
+                history: `History delete  ${history.title}`,
+                template: deletedTemplate[1]
+                    ? "Resume Templae Delete"
+                    : deletedTemplate[2] && "CoverLetter Templae Delete",
+            });
+        }
+        else {
+            res.status(404).json({
+                success: false,
+                message: "History not found or does not have a template",
+            });
+        }
+    }
+    catch (error) {
+        return next(new errorHandler_1.default(error.message, 400));
+    }
+}));

@@ -95,7 +95,7 @@ const SectionTitleSchema = new mongoose_1.Schema({
 const ResumeSchema = new mongoose_1.Schema({
     _id: mongoose_1.Schema.Types.Mixed,
     historyId: mongoose_1.Schema.Types.Mixed,
-    user: { type: mongoose_1.Schema.Types.ObjectId, ref: "User" },
+    user: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     templateId: { type: String, required: true },
     avatar: {
         public_id: String,
