@@ -7,17 +7,19 @@ import {
 import HistoryModel, { IHistory } from "../models/history.modle";
 import { catchAsyncError } from "../middlewares/error";
 import ErrorHandler from "../utils/errorHandler";
+import ResumeModel from "../models/resume.modle";
+import CoverLetterModel from "../models/coverLetter.modle";
 
 export const createUpdateHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: IHistory = req.body;
-
+      const userId = "65bfd0f85443cc82b0f3f504";
       const existing = await HistoryModel.findById(data._id);
 
       const existinghistory = await HistoryModel.findOneAndUpdate(
         { _id: data._id },
-        data,
+        { ...data, user: userId },
         { new: true, upsert: true }
       );
 
@@ -54,7 +56,7 @@ export const uploadHistoryThumbnail = (
   res: Response,
   next: NextFunction
 ) => {
-  uploadPicture.single("resumeCraftResumeThumbnail")(req, res, async (err) => {
+  uploadPicture.single("Thumbnail")(req, res, async (err) => {
     try {
       if (err) {
         return next(err);
@@ -100,3 +102,49 @@ export const uploadHistoryThumbnail = (
     }
   });
 };
+
+export const deleteHistory = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const userId = "65bfd0f85443cc82b0f3f504";
+
+      const history = await HistoryModel.findOne({
+        _id: id,
+        user: userId,
+      });
+
+      if (history && history.templateId) {
+        const deletedTemplate = await Promise.all([
+          HistoryModel.findOneAndDelete({
+            _id: history._id,
+            user: userId,
+          }),
+          ResumeModel.findOneAndDelete({
+            _id: history.templateId,
+            user: userId,
+          }),
+          CoverLetterModel.findOneAndDelete({
+            _id: history.templateId,
+            user: userId,
+          }),
+        ]);
+
+        res.status(201).json({
+          success: true,
+          history: `History delete  ${history.title}`,
+          template: deletedTemplate[1]
+            ? "Resume Templae Delete"
+            : deletedTemplate[2] && "CoverLetter Templae Delete",
+        });
+      } else {
+        res.status(404).json({
+          success: false,
+          message: "History not found or does not have a template",
+        });
+      }
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
