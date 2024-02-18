@@ -4,7 +4,7 @@ export interface IHistory extends Document {
   _id: string | number;
   title: string;
   user: Schema.Types.ObjectId;
-  resumeId: string | number;
+  templateId: string | number;
   thumbnail: {
     public_id: string;
     url: string;
@@ -16,8 +16,8 @@ const historySchema = new Schema<IHistory>(
   {
     _id: { type: Schema.Types.Mixed, required: true },
     title: String,
-    user: { type: Schema.Types.ObjectId, ref: "User" },
-    resumeId: { type: Schema.Types.Mixed, required: true },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+    templateId: { type: Schema.Types.Mixed, required: true },
     thumbnail: {
       public_id: String,
       url: String,

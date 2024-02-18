@@ -93,7 +93,7 @@ const ResumeSchema = new Schema<IResume>(
   {
     _id: Schema.Types.Mixed,
     historyId: Schema.Types.Mixed,
-    user: { type: Schema.Types.ObjectId, ref: "User" },
+    user: { type: Schema.Types.ObjectId, ref: "User", required: true },
     templateId: { type: String, required: true },
     avatar: {
       public_id: String,
