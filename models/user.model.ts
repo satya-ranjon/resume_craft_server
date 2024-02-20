@@ -34,7 +34,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: [true, "Please enter the password !"],
       minlength: [6, "Password must be at least 6 characters !"],
       select: false,
     },
@@ -45,10 +44,6 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
-    },
-    isVerified: {
-      type: Boolean,
-      default: false,
     },
   },
   { timestamps: true }

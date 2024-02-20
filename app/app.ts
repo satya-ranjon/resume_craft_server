@@ -10,12 +10,14 @@ import resumeRoute from "../routes/resume.route";
 import userRoute from "../routes/user.route";
 import historyRoute from "../routes/history.route";
 import coverLetterRoute from "../routes/coverLetter.route";
+import cookieParser from "cookie-parser";
 
 configDotenv();
 
 const app = express();
 app.use(express.json({ limit: "50mb" }));
-app.use(cors({ origin: process.env.CORS_ORIGIN }));
+app.use(cors({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use(cookieParser());
 
 // router
 app.get("/", (_req: Request, res: Response, _next: NextFunction) => {

@@ -23,6 +23,14 @@ export const userRegister = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, email, password } = req.body;
+      if (!email || !password || !name) {
+        return next(
+          new ErrorHandler(
+            "Please enter your email and password or name !",
+            400
+          )
+        );
+      }
       const isEmailExist = await userModel.findOne({ email });
 
       if (isEmailExist) {
@@ -80,7 +88,6 @@ export const userActivation = catchAsyncError(
       const { name, email, password } = user;
 
       const existUser = await userModel.findOne({ email });
-      console.log(existUser);
 
       if (existUser as any) {
         return next(new ErrorHandler("Email already exist !", 400));
@@ -126,6 +133,28 @@ export const userLogin = catchAsyncError(
       if (!isPasswordMatch) {
         return next(new ErrorHandler("Invalid email or password", 400));
       }
+
+      sendToken(user, 200, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+export const userGoogleLogin = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email, name, avatar } = req.body;
+
+      if (!email && !name) {
+        return next(new ErrorHandler("Please enter your email and name", 400));
+      }
+
+      const user = await userModel.findOneAndUpdate(
+        { email: email },
+        { name, email, avatar: { url: avatar, public_id: "" } },
+        { new: true, upsert: true }
+      );
 
       sendToken(user, 200, res);
     } catch (error: any) {

@@ -2,6 +2,7 @@ import express from "express";
 import {
   updateAccessToken,
   userActivation,
+  userGoogleLogin,
   userLogin,
   userLogout,
   userRegister,
@@ -15,5 +16,6 @@ authRouter.post("/activate", userActivation);
 authRouter.post("/login", userLogin);
 authRouter.get("/logout", isAuthenticated, userLogout);
 authRouter.get("/refresh", updateAccessToken);
+authRouter.post("/google/login", userGoogleLogin);
 
 export default authRouter;
