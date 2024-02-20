@@ -12,10 +12,12 @@ const resume_route_1 = __importDefault(require("../routes/resume.route"));
 const user_route_1 = __importDefault(require("../routes/user.route"));
 const history_route_1 = __importDefault(require("../routes/history.route"));
 const coverLetter_route_1 = __importDefault(require("../routes/coverLetter.route"));
+const cookie_parser_1 = __importDefault(require("cookie-parser"));
 (0, dotenv_1.configDotenv)();
 const app = (0, express_1.default)();
 app.use(express_1.default.json({ limit: "50mb" }));
-app.use((0, cors_1.default)({ origin: process.env.CORS_ORIGIN }));
+app.use((0, cors_1.default)({ origin: process.env.CORS_ORIGIN, credentials: true }));
+app.use((0, cookie_parser_1.default)());
 // router
 app.get("/", (_req, res, _next) => {
     res.send("server is run....");

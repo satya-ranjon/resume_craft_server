@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateAccessToken = exports.userLogout = exports.userLogin = exports.userActivation = exports.userRegister = void 0;
+exports.updateAccessToken = exports.userLogout = exports.userGoogleLogin = exports.userLogin = exports.userActivation = exports.userRegister = void 0;
 const error_1 = require("../middlewares/error");
 const auth_services_1 = require("../services/auth.services");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
@@ -24,6 +24,9 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 exports.userRegister = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password } = req.body;
+        if (!email || !password || !name) {
+            return next(new errorHandler_1.default("Please enter your email and password or name !", 400));
+        }
         const isEmailExist = yield user_model_1.default.findOne({ email });
         if (isEmailExist) {
             return next(new errorHandler_1.default("Email already exist !", 400));
@@ -67,7 +70,6 @@ exports.userActivation = (0, error_1.catchAsyncError)((req, res, next) => __awai
         }
         const { name, email, password } = user;
         const existUser = yield user_model_1.default.findOne({ email });
-        console.log(existUser);
         if (existUser) {
             return next(new errorHandler_1.default("Email already exist !", 400));
         }
@@ -99,6 +101,19 @@ exports.userLogin = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(v
         if (!isPasswordMatch) {
             return next(new errorHandler_1.default("Invalid email or password", 400));
         }
+        (0, jwt_1.sendToken)(user, 200, res);
+    }
+    catch (error) {
+        return next(new errorHandler_1.default(error.message, 400));
+    }
+}));
+exports.userGoogleLogin = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, name, avatar } = req.body;
+        if (!email && !name) {
+            return next(new errorHandler_1.default("Please enter your email and name", 400));
+        }
+        const user = yield user_model_1.default.findOneAndUpdate({ email: email }, { name, email, avatar: { url: avatar, public_id: "" } }, { new: true, upsert: true });
         (0, jwt_1.sendToken)(user, 200, res);
     }
     catch (error) {

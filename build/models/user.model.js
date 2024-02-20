@@ -33,7 +33,6 @@ const userSchema = new mongoose_1.default.Schema({
     },
     password: {
         type: String,
-        required: [true, "Please enter the password !"],
         minlength: [6, "Password must be at least 6 characters !"],
         select: false,
     },
@@ -44,10 +43,6 @@ const userSchema = new mongoose_1.default.Schema({
     role: {
         type: String,
         default: "user",
-    },
-    isVerified: {
-        type: Boolean,
-        default: false,
     },
 }, { timestamps: true });
 // Hash Password before saving
