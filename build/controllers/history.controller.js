@@ -68,7 +68,7 @@ const uploadHistoryThumbnail = (req, res, next) => {
             if (oldPublicId) {
                 yield (0, cloudinary_services_1.deleteImageFromCloudinary)(oldPublicId);
             }
-            const avatar = yield (0, cloudinary_services_1.uploadImage)(req.file.buffer, 600, 860, "resumeCraft_history_thumbnail");
+            const avatar = yield (0, cloudinary_services_1.uploadImage)(req.file.buffer, 612, 792, "resumeCraft_history_thumbnail");
             history.thumbnail = {
                 url: avatar.secure_url,
                 public_id: avatar.public_id,
