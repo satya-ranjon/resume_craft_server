@@ -80,8 +80,8 @@ export const uploadHistoryThumbnail = (
 
       const avatar = await uploadImage(
         req.file.buffer,
-        600,
-        860,
+        612,
+        792,
         "resumeCraft_history_thumbnail"
       );
 
