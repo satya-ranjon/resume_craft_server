@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateAccessToken = exports.userLogout = exports.userGoogleLogin = exports.userLogin = exports.userActivation = exports.userRegister = void 0;
+exports.userSetNewPassword = exports.userForgetPassword = exports.updateAccessToken = exports.userLogout = exports.userGoogleLogin = exports.userLogin = exports.userActivation = exports.userRegister = void 0;
 const error_1 = require("../middlewares/error");
 const auth_services_1 = require("../services/auth.services");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
@@ -21,6 +21,7 @@ const sendMail_1 = __importDefault(require("../utils/sendMail"));
 const jwt_1 = require("../utils/jwt");
 const redis_1 = require("../utils/redis");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const bcrypt_1 = __importDefault(require("bcrypt"));
 exports.userRegister = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { name, email, password } = req.body;
@@ -113,7 +114,12 @@ exports.userGoogleLogin = (0, error_1.catchAsyncError)((req, res, next) => __awa
         if (!email && !name) {
             return next(new errorHandler_1.default("Please enter your email and name", 400));
         }
-        const user = yield user_model_1.default.findOneAndUpdate({ email: email }, { name, email, avatar: { url: avatar, public_id: "" } }, { new: true, upsert: true });
+        const user = yield user_model_1.default.findOneAndUpdate({ email: email }, {
+            name,
+            email,
+            avatar: { url: avatar, public_id: "" },
+            socialLogin: true,
+        }, { new: true, upsert: true });
         (0, jwt_1.sendToken)(user, 200, res);
     }
     catch (error) {
@@ -162,6 +168,73 @@ exports.updateAccessToken = (0, error_1.catchAsyncError)((req, res, next) => __a
             user,
             accessToken,
         });
+    }
+    catch (error) {
+        return next(new errorHandler_1.default(error.message, 400));
+    }
+}));
+exports.userForgetPassword = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return next(new errorHandler_1.default("Please enter your email!", 400));
+        }
+        const user = yield user_model_1.default.findOne({
+            email: email,
+            socialLogin: false,
+        });
+        if (!user) {
+            return next(new errorHandler_1.default("Email Not found", 400));
+        }
+        const token = jsonwebtoken_1.default.sign({ _id: user._id }, process.env.ACCESS_TOKEN_SECRET, {
+            expiresIn: "5m",
+        });
+        const data = {
+            name: user.name,
+            token: `${process.env.EMAIL_VERIFY_NAVIGATE_URL}/${token
+                .split(".")
+                .join("---")}`,
+        };
+        try {
+            yield (0, sendMail_1.default)({
+                email,
+                subject: "Forget your password",
+                template: "forgetPassword-mail.ejs",
+                data,
+            });
+            res.status(201).json({
+                success: true,
+                message: `Please check your email: ${user.email} to active your account.`,
+            });
+        }
+        catch (error) {
+            return next(new errorHandler_1.default(error.message, 400));
+        }
+        // res.status(200).json({ token: token.split(".").join("---") });
+        // sendToken(user, 200, res);
+    }
+    catch (error) {
+        return next(new errorHandler_1.default(error.message, 400));
+    }
+}));
+exports.userSetNewPassword = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { password, token } = req.body;
+        if (!password) {
+            return next(new errorHandler_1.default("Please enter your password!", 400));
+        }
+        const { _id, exp } = jsonwebtoken_1.default.verify(token.split("---").join("."), process.env.ACCESS_TOKEN_SECRET);
+        if (!_id) {
+            return next(new errorHandler_1.default("Invalid credentials.", 403));
+        }
+        if (exp && Date.now() >= exp * 1000) {
+            return next(new errorHandler_1.default("Token has expired.", 401));
+        }
+        const hashPassword = yield bcrypt_1.default.hash(password, 10);
+        yield user_model_1.default.findByIdAndUpdate(_id, { password: hashPassword });
+        res
+            .status(200)
+            .json({ success: true, message: "Password Change Successfully!" });
     }
     catch (error) {
         return next(new errorHandler_1.default(error.message, 400));

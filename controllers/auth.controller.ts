@@ -11,6 +11,7 @@ import { accessTokenOption, refreshTokenOption, sendToken } from "../utils/jwt";
 import { JwtPayload } from "jsonwebtoken";
 import { redis } from "../utils/redis";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 interface IUserRegister {
   name: string;
@@ -152,7 +153,12 @@ export const userGoogleLogin = catchAsyncError(
 
       const user = await userModel.findOneAndUpdate(
         { email: email },
-        { name, email, avatar: { url: avatar, public_id: "" } },
+        {
+          name,
+          email,
+          avatar: { url: avatar, public_id: "" },
+          socialLogin: true,
+        },
         { new: true, upsert: true }
       );
 
@@ -226,6 +232,91 @@ export const updateAccessToken = catchAsyncError(
         user,
         accessToken,
       });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+export const userForgetPassword = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return next(new ErrorHandler("Please enter your email!", 400));
+      }
+
+      const user = await userModel.findOne({
+        email: email,
+        socialLogin: false,
+      });
+
+      if (!user) {
+        return next(new ErrorHandler("Email Not found", 400));
+      }
+
+      const token = jwt.sign(
+        { _id: user._id },
+        process.env.ACCESS_TOKEN_SECRET as string,
+        {
+          expiresIn: "5m",
+        }
+      );
+      const data = {
+        name: user.name,
+        token: `${process.env.EMAIL_VERIFY_NAVIGATE_URL as string}/${token
+          .split(".")
+          .join("---")}`,
+      };
+      try {
+        await sendMail({
+          email,
+          subject: "Forget your password",
+          template: "forgetPassword-mail.ejs",
+          data,
+        });
+        res.status(201).json({
+          success: true,
+          message: `Please check your email: ${user.email} to active your account.`,
+        });
+      } catch (error: any) {
+        return next(new ErrorHandler(error.message, 400));
+      }
+      // res.status(200).json({ token: token.split(".").join("---") });
+      // sendToken(user, 200, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+export const userSetNewPassword = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { password, token } = req.body;
+
+      if (!password) {
+        return next(new ErrorHandler("Please enter your password!", 400));
+      }
+
+      const { _id, exp } = jwt.verify(
+        token.split("---").join("."),
+        process.env.ACCESS_TOKEN_SECRET as string
+      ) as JwtPayload;
+
+      if (!_id) {
+        return next(new ErrorHandler("Invalid credentials.", 403));
+      }
+
+      if (exp && Date.now() >= exp * 1000) {
+        return next(new ErrorHandler("Token has expired.", 401));
+      }
+
+      const hashPassword = await bcrypt.hash(password, 10);
+      await userModel.findByIdAndUpdate(_id, { password: hashPassword });
+      res
+        .status(200)
+        .json({ success: true, message: "Password Change Successfully!" });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }

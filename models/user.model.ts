@@ -11,7 +11,7 @@ export interface IUser extends Document {
     url: string;
   };
   role: string;
-  isVerified: boolean;
+  socialLogin: boolean;
   comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
   SignRefreshToken: () => string;
@@ -44,6 +44,10 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
+    },
+    socialLogin: {
+      type: Boolean,
+      default: false,
     },
   },
   { timestamps: true }

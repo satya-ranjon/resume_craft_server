@@ -13,4 +13,6 @@ authRouter.post("/login", auth_controller_1.userLogin);
 authRouter.get("/logout", auth_1.isAuthenticated, auth_controller_1.userLogout);
 authRouter.get("/refresh", auth_1.isAuthenticated, auth_controller_1.updateAccessToken);
 authRouter.post("/google/login", auth_controller_1.userGoogleLogin);
+authRouter.post("/password/forget", auth_controller_1.userForgetPassword);
+authRouter.post("/password/new", auth_controller_1.userSetNewPassword);
 exports.default = authRouter;

@@ -44,6 +44,10 @@ const userSchema = new mongoose_1.default.Schema({
         type: String,
         default: "user",
     },
+    socialLogin: {
+        type: Boolean,
+        default: false,
+    },
 }, { timestamps: true });
 // Hash Password before saving
 userSchema.pre("save", function (next) {
