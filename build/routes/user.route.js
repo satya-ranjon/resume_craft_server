@@ -8,4 +8,5 @@ const user_controller_1 = require("../controllers/user.controller");
 const auth_1 = require("../middlewares/auth");
 const userRoute = express_1.default.Router();
 userRoute.patch("/upload-profile-picture", auth_1.isAuthenticated, user_controller_1.uploadProfilePicture);
+userRoute.patch("/info-change", auth_1.isAuthenticated, user_controller_1.userInfoChange);
 exports.default = userRoute;

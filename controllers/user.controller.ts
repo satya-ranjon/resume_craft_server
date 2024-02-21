@@ -5,62 +5,79 @@ import {
   deleteImageFromCloudinary,
   uploadImage,
 } from "../services/cloudinary.services";
+import { redis } from "../utils/redis";
+import { catchAsyncError } from "../middlewares/error";
+import ErrorHandler from "../utils/errorHandler";
 
 export const uploadProfilePicture = (
   req: Request,
   res: Response,
   next: NextFunction
 ) => {
-  // Upload the profile picture using the multer middleware
   uploadPicture.single("resumeCraftProfilePic")(req, res, async (err) => {
     try {
       if (err) {
         return next(err);
       }
 
-      // Ensure that req.file exists
       if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        return next(new ErrorHandler("No file uploaded", 400));
       }
 
-      // Fetch the user data from the database using the user ID
       const user = await userModel.findById(req.user);
+      console.log(req.user);
+      console.log(user);
 
-      // Ensure that user exists
       if (!user) {
-        return res.status(404).json({ message: "User not found" });
+        return next(new ErrorHandler("User not found", 400));
       }
 
-      // Get the public IDs of the user's existing profile pictures
-      const oldPublicId = user.avatar.public_id;
-
-      // Delete the old profile pictures from Cloudinary if they exist
-      if (oldPublicId) {
-        await deleteImageFromCloudinary(oldPublicId);
-      }
-
-      // Upload image with dimensions 64*64
       const avatar = await uploadImage(
         req.file.buffer,
-        200,
-        200,
-        "user_profile"
+        300,
+        300,
+        "resumeCraft_user_avatar"
       );
 
-      // Update the user's avatar data in the user object
       user.avatar = {
         url: avatar.secure_url,
         public_id: avatar.public_id,
       };
-
-      // Save the updated user information to the database
       const updateInfo = await user.save();
 
-      // Respond with the updated user data without sensitive information
-      res.status(200).json(updateInfo);
+      await redis.set(user._id, JSON.stringify(updateInfo) as any);
+
+      res.status(200).json({ success: true, user: updateInfo });
     } catch (error) {
-      // If an error occurs during the process, pass it to the error handling middleware
       next(error);
     }
   });
 };
+
+export const userInfoChange = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { name, email } = req.body;
+
+      const another = await userModel.findOne({ email: email });
+
+      if (another?._id && another?._id.toHexString() !== req.user?._id) {
+        return next(new ErrorHandler("This email already exist!", 400));
+      }
+      const updateInfo = await userModel.findOneAndUpdate(
+        { _id: req.user?._id },
+        { ...req.user, name: name, email: email },
+        { new: true, upsert: true }
+      );
+      await redis.set(updateInfo._id, JSON.stringify(updateInfo) as any);
+
+      res.status(200).json({
+        success: true,
+        message: "User Info Update Successfully",
+        user: updateInfo,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
