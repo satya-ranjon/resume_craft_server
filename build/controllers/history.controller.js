@@ -23,9 +23,8 @@ const coverLetter_modle_1 = __importDefault(require("../models/coverLetter.modle
 exports.createUpdateHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = req.body;
-        const userId = "65bfd0f85443cc82b0f3f504";
         const existing = yield history_modle_1.default.findById(data._id);
-        const existinghistory = yield history_modle_1.default.findOneAndUpdate({ _id: data._id }, Object.assign(Object.assign({}, data), { user: userId }), { new: true, upsert: true });
+        const existinghistory = yield history_modle_1.default.findOneAndUpdate({ _id: data._id }, Object.assign(Object.assign({}, data), { user: req.user }), { new: true, upsert: true });
         res.status(201).json({
             success: true,
             message: `History ${existing ? "updated" : "created"}  successfully.`,
@@ -36,10 +35,10 @@ exports.createUpdateHistory = (0, error_1.catchAsyncError)((req, res, next) => _
         return next(new errorHandler_1.default(error.message, 400));
     }
 }));
-exports.userHistory = (0, error_1.catchAsyncError)((_req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+exports.userHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const history = yield history_modle_1.default.find({
-            user: "65bfd0f85443cc82b0f3f504",
+            user: req.user,
         });
         res.status(201).json({
             success: true,
@@ -89,24 +88,23 @@ exports.uploadHistoryThumbnail = uploadHistoryThumbnail;
 exports.deleteHistory = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const { id } = req.params;
-        const userId = "65bfd0f85443cc82b0f3f504";
         const history = yield history_modle_1.default.findOne({
             _id: id,
-            user: userId,
+            user: req.user,
         });
         if (history && history.templateId) {
             const deletedTemplate = yield Promise.all([
                 history_modle_1.default.findOneAndDelete({
                     _id: history._id,
-                    user: userId,
+                    user: req.user,
                 }),
                 resume_modle_1.default.findOneAndDelete({
                     _id: history.templateId,
-                    user: userId,
+                    user: req.user,
                 }),
                 coverLetter_modle_1.default.findOneAndDelete({
                     _id: history.templateId,
-                    user: userId,
+                    user: req.user,
                 }),
             ]);
             res.status(201).json({

@@ -21,7 +21,6 @@ const cloudinary_services_1 = require("../services/cloudinary.services");
 exports.createOrUpdateResume = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const resumeData = req.body;
-        const userId = "65bfd0f85443cc82b0f3f504";
         const existing = yield resume_modle_1.default.findById(resumeData._id);
         if (existing &&
             !resumeData.avatar.public_id &&
@@ -31,7 +30,7 @@ exports.createOrUpdateResume = (0, error_1.catchAsyncError)((req, res, next) => 
                 yield (0, cloudinary_services_1.deleteImageFromCloudinary)(oldPublicId);
             }
         }
-        const existingResume = yield resume_modle_1.default.findOneAndUpdate({ _id: resumeData._id }, Object.assign(Object.assign({}, resumeData), { user: userId }), { new: true, upsert: true });
+        const existingResume = yield resume_modle_1.default.findOneAndUpdate({ _id: resumeData._id }, Object.assign(Object.assign({}, resumeData), { user: req.user }), { new: true, upsert: true });
         res.status(201).json({
             success: true,
             message: `Resume ${existing ? "updated" : "created"} successfully.`,

@@ -15,7 +15,7 @@ authRouter.post("/register", userRegister);
 authRouter.post("/activate", userActivation);
 authRouter.post("/login", userLogin);
 authRouter.get("/logout", isAuthenticated, userLogout);
-authRouter.get("/refresh", updateAccessToken);
+authRouter.get("/refresh", isAuthenticated, updateAccessToken);
 authRouter.post("/google/login", userGoogleLogin);
 
 export default authRouter;

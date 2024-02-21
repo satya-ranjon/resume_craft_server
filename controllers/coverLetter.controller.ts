@@ -7,13 +7,12 @@ export const createOrUpdateCoverLetter = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const coverLetterData = req.body;
-      const userId = "65bfd0f85443cc82b0f3f504";
 
       const existing = await CoverLetterModel.findById(coverLetterData._id);
 
       const existingCoverLetter = await CoverLetterModel.findOneAndUpdate(
         { _id: coverLetterData._id },
-        { ...coverLetterData, user: userId },
+        { ...coverLetterData, user: req.user },
         { new: true, upsert: true }
       );
 

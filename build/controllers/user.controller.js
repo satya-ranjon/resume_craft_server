@@ -19,7 +19,6 @@ const cloudinary_services_1 = require("../services/cloudinary.services");
 const uploadProfilePicture = (req, res, next) => {
     // Upload the profile picture using the multer middleware
     multerHandle_1.default.single("resumeCraftProfilePic")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
-        var _a;
         try {
             if (err) {
                 return next(err);
@@ -28,10 +27,8 @@ const uploadProfilePicture = (req, res, next) => {
             if (!req.file) {
                 return res.status(400).json({ message: "No file uploaded" });
             }
-            // Get the user ID from the request
-            const userId = (_a = req.user) === null || _a === void 0 ? void 0 : _a._id;
             // Fetch the user data from the database using the user ID
-            const user = yield user_model_1.default.findById(userId);
+            const user = yield user_model_1.default.findById(req.user);
             // Ensure that user exists
             if (!user) {
                 return res.status(404).json({ message: "User not found" });

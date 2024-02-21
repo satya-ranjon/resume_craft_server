@@ -23,11 +23,8 @@ export const uploadProfilePicture = (
         return res.status(400).json({ message: "No file uploaded" });
       }
 
-      // Get the user ID from the request
-      const userId = req.user?._id;
-
       // Fetch the user data from the database using the user ID
-      const user = await userModel.findById(userId);
+      const user = await userModel.findById(req.user);
 
       // Ensure that user exists
       if (!user) {

@@ -14,12 +14,11 @@ export const createUpdateHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data: IHistory = req.body;
-      const userId = "65bfd0f85443cc82b0f3f504";
       const existing = await HistoryModel.findById(data._id);
 
       const existinghistory = await HistoryModel.findOneAndUpdate(
         { _id: data._id },
-        { ...data, user: userId },
+        { ...data, user: req.user },
         { new: true, upsert: true }
       );
 
@@ -35,10 +34,10 @@ export const createUpdateHistory = catchAsyncError(
 );
 
 export const userHistory = catchAsyncError(
-  async (_req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const history = await HistoryModel.find({
-        user: "65bfd0f85443cc82b0f3f504",
+        user: req.user,
       });
 
       res.status(201).json({
@@ -107,26 +106,25 @@ export const deleteHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
-      const userId = "65bfd0f85443cc82b0f3f504";
 
       const history = await HistoryModel.findOne({
         _id: id,
-        user: userId,
+        user: req.user,
       });
 
       if (history && history.templateId) {
         const deletedTemplate = await Promise.all([
           HistoryModel.findOneAndDelete({
             _id: history._id,
-            user: userId,
+            user: req.user,
           }),
           ResumeModel.findOneAndDelete({
             _id: history.templateId,
-            user: userId,
+            user: req.user,
           }),
           CoverLetterModel.findOneAndDelete({
             _id: history.templateId,
-            user: userId,
+            user: req.user,
           }),
         ]);
 

@@ -4,11 +4,12 @@ import {
   getSingleResume,
   uploadReasumeAvatar,
 } from "../controllers/resume.controller";
+import { isAuthenticated } from "../middlewares/auth";
 
 const resumeRoute = express.Router();
 
-resumeRoute.post("/create", createOrUpdateResume);
-resumeRoute.get("/:id", getSingleResume);
-resumeRoute.patch("/upload/:id", uploadReasumeAvatar);
+resumeRoute.post("/create", isAuthenticated, createOrUpdateResume);
+resumeRoute.get("/:id", isAuthenticated, getSingleResume);
+resumeRoute.patch("/upload/:id", isAuthenticated, uploadReasumeAvatar);
 
 export default resumeRoute;

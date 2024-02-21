@@ -13,7 +13,6 @@ export const createOrUpdateResume = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const resumeData: IResume = req.body;
-      const userId = "65bfd0f85443cc82b0f3f504";
 
       const existing = await ResumeModel.findById(resumeData._id);
 
@@ -30,7 +29,7 @@ export const createOrUpdateResume = catchAsyncError(
 
       const existingResume = await ResumeModel.findOneAndUpdate(
         { _id: resumeData._id },
-        { ...resumeData, user: userId },
+        { ...resumeData, user: req.user },
         { new: true, upsert: true }
       );
 

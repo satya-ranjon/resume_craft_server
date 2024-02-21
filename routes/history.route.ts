@@ -6,12 +6,13 @@ import {
   uploadHistoryThumbnail,
   userHistory,
 } from "../controllers/history.controller";
+import { isAuthenticated } from "../middlewares/auth";
 
 const historyRoute = express.Router();
 
-historyRoute.get("/", userHistory);
-historyRoute.post("/create", createUpdateHistory);
-historyRoute.patch("/upload/:id", uploadHistoryThumbnail);
-historyRoute.delete("/delete/:id", deleteHistory);
+historyRoute.get("/", isAuthenticated, userHistory);
+historyRoute.post("/create", isAuthenticated, createUpdateHistory);
+historyRoute.patch("/upload/:id", isAuthenticated, uploadHistoryThumbnail);
+historyRoute.delete("/delete/:id", isAuthenticated, deleteHistory);
 
 export default historyRoute;
