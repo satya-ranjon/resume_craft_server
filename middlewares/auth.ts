@@ -8,7 +8,6 @@ import ErrorHandler from "../utils/errorHandler";
 export const isAuthenticated = catchAsyncError(
   async (req: Request, _res: Response, next: NextFunction) => {
     const access_token = req.cookies.access_token as string;
-
     if (!access_token) {
       return next(
         new ErrorHandler("Please login to access this resource !", 400)
