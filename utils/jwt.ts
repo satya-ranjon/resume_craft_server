@@ -15,7 +15,7 @@ export const accessTokenOption: ITokenOptions = {
   maxAge: accessTokenExpire * 60 * 1000,
   secure: true,
   httpOnly: true,
-  sameSite: "strict",
+  sameSite: "none",
 };
 
 export const refreshTokenOption: ITokenOptions = {
@@ -23,7 +23,7 @@ export const refreshTokenOption: ITokenOptions = {
   maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
   secure: true,
   httpOnly: true,
-  sameSite: "strict",
+  sameSite: "none",
 };
 
 interface ITokenOptions {

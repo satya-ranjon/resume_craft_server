@@ -20,14 +20,14 @@ exports.accessTokenOption = {
     maxAge: accessTokenExpire * 60 * 1000,
     secure: true,
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "none",
 };
 exports.refreshTokenOption = {
     expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
     maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
     secure: true,
     httpOnly: true,
-    sameSite: "strict",
+    sameSite: "none",
 };
 const sendToken = (user, statusCode, res) => __awaiter(void 0, void 0, void 0, function* () {
     const accessToken = user.SignAccessToken();
