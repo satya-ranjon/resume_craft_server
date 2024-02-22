@@ -16,18 +16,18 @@ const accessTokenExpire = parseInt(process.env.ACCESS_TOKEN_EXPIRE || "5", 10);
 const refreshTokenExpire = parseInt(process.env.REFRESH_TOKEN_EXPIRE || "3", 10);
 // options for cookies
 exports.accessTokenOption = {
-    expires: new Date(Date.now() + accessTokenExpire * 60 * 60 * 1000),
-    maxAge: accessTokenExpire * 60 * 60 * 1000,
+    expires: new Date(Date.now() + accessTokenExpire * 60 * 1000),
+    maxAge: accessTokenExpire * 60 * 1000,
     secure: true,
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
 };
 exports.refreshTokenOption = {
     expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
     maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
     secure: true,
     httpOnly: true,
-    sameSite: "lax",
+    sameSite: "strict",
 };
 const sendToken = (user, statusCode, res) => __awaiter(void 0, void 0, void 0, function* () {
     const accessToken = user.SignAccessToken();
