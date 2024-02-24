@@ -9,4 +9,6 @@ const auth_1 = require("../middlewares/auth");
 const userRoute = express_1.default.Router();
 userRoute.patch("/upload-profile-picture", auth_1.isAuthenticated, user_controller_1.uploadProfilePicture);
 userRoute.patch("/info-change", auth_1.isAuthenticated, user_controller_1.userInfoChange);
+userRoute.post("/create/share", auth_1.isAuthenticated, user_controller_1.generateTemplateShare);
+userRoute.get("/share/data/:id", user_controller_1.getShareTemplate);
 exports.default = userRoute;

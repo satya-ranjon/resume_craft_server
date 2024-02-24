@@ -12,13 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.userInfoChange = exports.uploadProfilePicture = void 0;
+exports.getShareTemplate = exports.generateTemplateShare = exports.userInfoChange = exports.uploadProfilePicture = void 0;
 const multerHandle_1 = __importDefault(require("../middlewares/multerHandle"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const cloudinary_services_1 = require("../services/cloudinary.services");
 const redis_1 = require("../utils/redis");
 const error_1 = require("../middlewares/error");
 const errorHandler_1 = __importDefault(require("../utils/errorHandler"));
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const resume_modle_1 = __importDefault(require("../models/resume.modle"));
+const coverLetter_modle_1 = __importDefault(require("../models/coverLetter.modle"));
 const uploadProfilePicture = (req, res, next) => {
     multerHandle_1.default.single("resumeCraftProfilePic")(req, res, (err) => __awaiter(void 0, void 0, void 0, function* () {
         try {
@@ -29,8 +32,6 @@ const uploadProfilePicture = (req, res, next) => {
                 return next(new errorHandler_1.default("No file uploaded", 400));
             }
             const user = yield user_model_1.default.findById(req.user);
-            console.log(req.user);
-            console.log(user);
             if (!user) {
                 return next(new errorHandler_1.default("User not found", 400));
             }
@@ -64,6 +65,48 @@ exports.userInfoChange = (0, error_1.catchAsyncError)((req, res, next) => __awai
             message: "User Info Update Successfully",
             user: updateInfo,
         });
+    }
+    catch (error) {
+        return next(new errorHandler_1.default(error.message, 400));
+    }
+}));
+exports.generateTemplateShare = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { templateId, type, expiresIn } = req.body;
+    if (!templateId || !type) {
+        return next(new errorHandler_1.default("Invalid cradintial", 400));
+    }
+    if (expiresIn) {
+        const token = jsonwebtoken_1.default.sign({ templateId, type }, process.env.ACCESS_TOKEN_SECRET, { expiresIn, algorithm: "HS512" });
+        res.status(200).json(token);
+    }
+    const token = jsonwebtoken_1.default.sign({ templateId, type }, process.env.ACCESS_TOKEN_SECRET, {
+        algorithm: "HS512",
+    });
+    res.status(200).json(token);
+}));
+exports.getShareTemplate = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return next(new errorHandler_1.default("Invalid cradintial", 400));
+        }
+        const { templateId, type } = jsonwebtoken_1.default.verify(id, process.env.ACCESS_TOKEN_SECRET);
+        if (!templateId || !type) {
+            return next(new errorHandler_1.default("Invalid cradintial", 400));
+        }
+        if (type === "resume") {
+            const resumeData = yield resume_modle_1.default.findById(templateId);
+            res
+                .status(200)
+                .json({ success: true, type: "resume", data: resumeData });
+        }
+        if (type === "coverletter") {
+            const coverLetterData = yield coverLetter_modle_1.default.findById(templateId);
+            res
+                .status(200)
+                .json({ success: true, type: "coverletter", data: coverLetterData });
+        }
+        return next(new errorHandler_1.default("Invalid cradintial", 400));
     }
     catch (error) {
         return next(new errorHandler_1.default(error.message, 400));

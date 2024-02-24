@@ -1,5 +1,7 @@
 import express from "express";
 import {
+  generateTemplateShare,
+  getShareTemplate,
   uploadProfilePicture,
   userInfoChange,
 } from "../controllers/user.controller";
@@ -13,5 +15,7 @@ userRoute.patch(
   uploadProfilePicture
 );
 userRoute.patch("/info-change", isAuthenticated, userInfoChange);
+userRoute.post("/create/share", isAuthenticated, generateTemplateShare);
+userRoute.get("/share/data/:id", getShareTemplate);
 
 export default userRoute;

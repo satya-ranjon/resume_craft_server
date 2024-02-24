@@ -50,7 +50,9 @@ export const getSingleResume = catchAsyncError(
       const { id } = req.params;
 
       const resume = await ResumeModel.findById(id).select("-user");
-
+      if (!resume) {
+        return next(new ErrorHandler("notfound", 400));
+      }
       res.status(201).json({
         success: true,
         resume: resume,
@@ -73,14 +75,14 @@ export const uploadReasumeAvatar = (
       }
 
       if (!req.file) {
-        return res.status(400).json({ message: "No file uploaded" });
+        return next(new ErrorHandler("No file uploaded", 400));
       }
 
       const { id } = req.params;
       const resume = await ResumeModel.findById(id);
 
       if (!resume) {
-        return res.status(404).json({ message: "Resume not found" });
+        return next(new ErrorHandler("Resume not found", 404));
       }
 
       const oldPublicId = resume.avatar.public_id;

@@ -35,7 +35,9 @@ export const getSingleCoverLetter = catchAsyncError(
       const { id } = req.params;
 
       const coverLetter = await CoverLetterModel.findById(id).select("-user");
-
+      if (!coverLetter) {
+        return next(new ErrorHandler("notfound", 400));
+      }
       res.status(201).json({
         success: true,
         coverLetter: coverLetter,

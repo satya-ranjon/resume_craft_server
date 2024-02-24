@@ -45,6 +45,9 @@ exports.getSingleResume = (0, error_1.catchAsyncError)((req, res, next) => __awa
     try {
         const { id } = req.params;
         const resume = yield resume_modle_1.default.findById(id).select("-user");
+        if (!resume) {
+            return next(new errorHandler_1.default("notfound", 400));
+        }
         res.status(201).json({
             success: true,
             resume: resume,
@@ -61,12 +64,12 @@ const uploadReasumeAvatar = (req, res, next) => {
                 return next(err);
             }
             if (!req.file) {
-                return res.status(400).json({ message: "No file uploaded" });
+                return next(new errorHandler_1.default("No file uploaded", 400));
             }
             const { id } = req.params;
             const resume = yield resume_modle_1.default.findById(id);
             if (!resume) {
-                return res.status(404).json({ message: "Resume not found" });
+                return next(new errorHandler_1.default("Resume not found", 404));
             }
             const oldPublicId = resume.avatar.public_id;
             if (oldPublicId) {

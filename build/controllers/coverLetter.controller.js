@@ -35,6 +35,9 @@ exports.getSingleCoverLetter = (0, error_1.catchAsyncError)((req, res, next) => 
     try {
         const { id } = req.params;
         const coverLetter = yield coverLetter_modle_1.default.findById(id).select("-user");
+        if (!coverLetter) {
+            return next(new errorHandler_1.default("notfound", 400));
+        }
         res.status(201).json({
             success: true,
             coverLetter: coverLetter,
