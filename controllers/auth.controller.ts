@@ -283,13 +283,12 @@ export const userForgetPassword = catchAsyncError(
       } catch (error: any) {
         return next(new ErrorHandler(error.message, 400));
       }
-      // res.status(200).json({ token: token.split(".").join("---") });
-      // sendToken(user, 200, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
+
 export const userSetNewPassword = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
