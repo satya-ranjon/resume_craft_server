@@ -11,6 +11,7 @@ import userRoute from "../routes/user.route";
 import historyRoute from "../routes/history.route";
 import coverLetterRoute from "../routes/coverLetter.route";
 import cookieParser from "cookie-parser";
+import blogRouter from "../routes/blog.route";
 
 configDotenv();
 
@@ -29,6 +30,7 @@ app.use("/resume/v1", resumeRoute);
 app.use("/coverLetter/v1", coverLetterRoute);
 app.use("/user/v1", userRoute);
 app.use("/history/v1", historyRoute);
+app.use("/blog/v1", blogRouter);
 
 // handling undefined routes
 app.use(catchAllUndefinedRoutes);
