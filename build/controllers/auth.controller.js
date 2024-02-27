@@ -210,8 +210,6 @@ exports.userForgetPassword = (0, error_1.catchAsyncError)((req, res, next) => __
         catch (error) {
             return next(new errorHandler_1.default(error.message, 400));
         }
-        // res.status(200).json({ token: token.split(".").join("---") });
-        // sendToken(user, 200, res);
     }
     catch (error) {
         return next(new errorHandler_1.default(error.message, 400));

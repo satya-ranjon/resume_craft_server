@@ -1,15 +1,26 @@
 import express from "express";
-import {createBlog,deleteBlog,imageUpload,updateBlog,getAllBlogs,getSingleBlog
+import {
+  createBlog,
+  deleteBlog,
+  imageUpload,
+  updateBlog,
+  getAllBlogs,
+  getSingleBlog,
 } from "../controllers/blog.controller";
-import { isAuthenticated,authorizeRoles } from "../middlewares/auth";
+import { isAuthenticated, authorizeRoles } from "../middlewares/auth";
 
 const blogRouter = express.Router();
 
-blogRouter.post("/createBlog", isAuthenticated,createBlog);
-blogRouter.patch("/updateBlog/:id", isAuthenticated, updateBlog);
+blogRouter.post(
+  "/createBlog",
+  isAuthenticated,
+  authorizeRoles("admin"),
+  createBlog
+);
+blogRouter.patch("/update/:id", isAuthenticated, updateBlog);
 blogRouter.post("/imageUpload", isAuthenticated, imageUpload);
-blogRouter.delete("/deleteBlog/:id", isAuthenticated, deleteBlog);
-blogRouter.get("/getSingleBlog/:id", getSingleBlog);
-blogRouter.get("/getAllBlogs", getAllBlogs);
+blogRouter.delete("/delete/:id", isAuthenticated, deleteBlog);
+blogRouter.get("/single/:id", getSingleBlog);
+blogRouter.get("/all", getAllBlogs);
 
 export default blogRouter;
