@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  downloadTemplae,
   generateTemplateShare,
   getShareTemplate,
   uploadProfilePicture,
@@ -17,5 +18,6 @@ userRoute.patch(
 userRoute.patch("/info-change", isAuthenticated, userInfoChange);
 userRoute.post("/create/share", isAuthenticated, generateTemplateShare);
 userRoute.get("/share/data/:id", getShareTemplate);
+userRoute.get("/download", isAuthenticated, downloadTemplae);
 
 export default userRoute;

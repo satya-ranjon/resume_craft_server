@@ -12,6 +12,12 @@ export interface IUser extends Document {
   };
   role: string;
   socialLogin: boolean;
+  plan: {
+    type: "free" | "premium" | "enterprise";
+    downloadlimite: number;
+    checkoutDate: number;
+    timeLimite: number;
+  };
   comparePassword: (password: string) => Promise<boolean>;
   SignAccessToken: () => string;
   SignRefreshToken: () => string;
@@ -49,8 +55,28 @@ const userSchema: Schema<IUser> = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    plan: {
+      type: {
+        type: String,
+        required: true,
+        enum: ["premium", "enterprise", "free"],
+        default: "free",
+      },
+      downloadlimite: {
+        type: Number,
+        default: 10,
+      },
+      checkoutDate: {
+        type: Number,
+        default: Date.now,
+      },
+      timeLimite: {
+        type: Number,
+        default: 30,
+      },
+    },
   },
-  { timestamps: true }
+  { timestamps: true, versionKey: false }
 );
 
 // Hash Password before saving

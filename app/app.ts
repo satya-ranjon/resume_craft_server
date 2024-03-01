@@ -12,6 +12,7 @@ import historyRoute from "../routes/history.route";
 import coverLetterRoute from "../routes/coverLetter.route";
 import cookieParser from "cookie-parser";
 import blogRouter from "../routes/blog.route";
+import pamentHistoryRoute from "../routes/pamentHistory.route";
 
 configDotenv();
 
@@ -31,6 +32,7 @@ app.use("/coverLetter/v1", coverLetterRoute);
 app.use("/user/v1", userRoute);
 app.use("/history/v1", historyRoute);
 app.use("/blog/v1", blogRouter);
+app.use("/paments/v1", pamentHistoryRoute);
 
 // handling undefined routes
 app.use(catchAllUndefinedRoutes);
