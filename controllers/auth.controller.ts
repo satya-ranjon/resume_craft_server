@@ -134,6 +134,50 @@ export const userLogin = catchAsyncError(
       if (!isPasswordMatch) {
         return next(new ErrorHandler("Invalid email or password", 400));
       }
+      const timeLimiteDifference = Date.now() - user.plan.checkoutDate;
+      const IsdaysDifferenceTrue =
+        Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+        user.plan.timeLimite;
+
+      const IsAfterThertyDay =
+        Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) > 30;
+
+      const isFreeType = user.plan.type === "free";
+
+      const isNotFreeType =
+        user.plan.type !== "free" &&
+        IsAfterThertyDay &&
+        user.plan.downloadlimite === 0;
+
+      const newDataPlan = {
+        type:
+          IsdaysDifferenceTrue && isFreeType
+            ? "free"
+            : isNotFreeType
+            ? "free"
+            : user.plan.type,
+        downloadlimite:
+          IsdaysDifferenceTrue && isFreeType
+            ? 10
+            : isNotFreeType
+            ? 10
+            : user.plan.downloadlimite,
+        timeLimite:
+          IsdaysDifferenceTrue && isFreeType
+            ? 30
+            : isNotFreeType
+            ? 30
+            : user.plan.timeLimite,
+        checkoutDate:
+          IsdaysDifferenceTrue && isFreeType
+            ? Date.now()
+            : isNotFreeType
+            ? Date.now()
+            : user.plan.checkoutDate,
+      };
+
+      user.plan = newDataPlan;
+      await user.save();
 
       sendToken(user, 200, res);
     } catch (error: any) {
@@ -207,6 +251,61 @@ export const updateAccessToken = catchAsyncError(
       }
 
       const user = JSON.parse(session);
+
+      const timeLimiteDifference = Date.now() - user.plan.checkoutDate;
+
+      const IsdaysDifferenceTrue =
+        Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+        user.plan.timeLimite;
+
+      const IsAfterThertyDay =
+        Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) > 30;
+
+      const isFreeType = user.plan.type === "free";
+
+      const isNotFreeType =
+        user.plan.type !== "free" &&
+        IsAfterThertyDay &&
+        user.plan.downloadlimite === 0;
+
+      const newDataPlan = {
+        type:
+          IsdaysDifferenceTrue && isFreeType
+            ? "free"
+            : isNotFreeType
+            ? "free"
+            : user.plan.type,
+        downloadlimite:
+          IsdaysDifferenceTrue && isFreeType
+            ? 10
+            : isNotFreeType
+            ? 10
+            : user.plan.downloadlimite,
+        timeLimite:
+          IsdaysDifferenceTrue && isFreeType
+            ? 30
+            : isNotFreeType
+            ? 30
+            : user.plan.timeLimite,
+        checkoutDate:
+          IsdaysDifferenceTrue && isFreeType
+            ? Date.now()
+            : isNotFreeType
+            ? Date.now()
+            : user.plan.checkoutDate,
+      };
+
+      if (IsdaysDifferenceTrue || isNotFreeType) {
+        const updateUser = await userModel.findOneAndUpdate(
+          { _id: user._id },
+          {
+            ...user,
+            plan: newDataPlan,
+          },
+          { new: true, upsert: true }
+        );
+        await redis.set(user._id, JSON.stringify(updateUser) as any);
+      }
 
       const accessToken = jwt.sign(
         { id: user._id },
