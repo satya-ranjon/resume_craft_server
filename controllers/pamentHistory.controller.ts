@@ -12,6 +12,8 @@ interface ICreatePamentHistory {
   amount: number;
 }
 
+//* if user downloadlimite timeLimite over then set just new downloadlimite or timeLimite not over then current downloadlimite + new downloadlimite
+
 export const createPamentHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -32,25 +34,49 @@ export const createPamentHistory = catchAsyncError(
 
       const history = await pamentHistory.save();
 
-      const updateUser = await userModel.findOneAndUpdate(
-        { _id: req.user?._id },
-        {
-          ...req.user,
-          plan: {
-            type: type,
-            downloadlimite: downloadlimite,
-            timeLimite: timeLimite,
-            checkoutDate: Date.now(),
+      if (req.user) {
+        const timeLimiteDifference = Date.now() - req.user.plan.checkoutDate;
+        const IsdaysDifferenceTrue =
+          Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+          req.user.plan.timeLimite;
+
+        const updateUser = await userModel.findOneAndUpdate(
+          { _id: req.user?._id },
+          {
+            ...req.user,
+            plan: {
+              type: type,
+              downloadlimite: IsdaysDifferenceTrue
+                ? downloadlimite
+                : req.user.plan.downloadlimite + downloadlimite,
+              timeLimite: timeLimite,
+              checkoutDate: Date.now(),
+            },
           },
-        },
-        { new: true, upsert: true }
-      );
+          { new: true, upsert: true }
+        );
 
-      await redis.set(req.user?._id, JSON.stringify(updateUser) as any);
+        await redis.set(req.user?._id, JSON.stringify(updateUser) as any);
+        res.status(201).json({
+          success: true,
+          pamentHistory: history,
+          user: updateUser,
+        });
+      }
 
-      res
-        .status(201)
-        .json({ success: true, pamentHistory: history, user: updateUser });
+      return next(new ErrorHandler("Invalid Data", 400));
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+export const getAllPamentHistory = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const history = await PamentHistoryModel.find({ user: req.user?._id });
+
+      res.status(201).json({ success: true, history: history });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
