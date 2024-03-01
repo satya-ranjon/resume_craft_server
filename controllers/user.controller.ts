@@ -138,3 +138,71 @@ export const getShareTemplate = catchAsyncError(
     }
   }
 );
+
+// * if User plan type is not free and timeLimite > 30 and downloadlimite === 0 then after 30 days user plan is type =  free and set downloadlimite = 10
+
+export const downloadTemplae = catchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const user = await userModel.findById(req.user?._id);
+      if (!user) {
+        return next(new ErrorHandler("User Not found", 400));
+      }
+
+      const timeLimiteDifference = Date.now() - user.plan.checkoutDate;
+      const IsdaysDifferenceTrue =
+        Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+        user.plan.timeLimite;
+
+      const IsAfterThertyDay =
+        Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) > 30;
+
+      const isFreeType = user.plan.type === "free";
+
+      const isNotFreeType =
+        user.plan.type !== "free" &&
+        IsAfterThertyDay &&
+        user.plan.downloadlimite === 0;
+
+      const isDownloadTrue = user.plan.downloadlimite > 0;
+
+      const newDataPlan = {
+        type:
+          IsdaysDifferenceTrue && isFreeType
+            ? "free"
+            : isNotFreeType
+            ? "free"
+            : user.plan.type,
+        downloadlimite:
+          IsdaysDifferenceTrue && isFreeType
+            ? 10
+            : isNotFreeType
+            ? 10
+            : user.plan.downloadlimite > 0
+            ? user.plan.downloadlimite - 1
+            : user.plan.downloadlimite,
+        timeLimite:
+          IsdaysDifferenceTrue && isFreeType
+            ? 30
+            : isNotFreeType
+            ? 30
+            : user.plan.timeLimite,
+        checkoutDate:
+          IsdaysDifferenceTrue && isFreeType
+            ? Date.now()
+            : isNotFreeType
+            ? Date.now()
+            : user.plan.checkoutDate,
+      };
+
+      user.plan = newDataPlan;
+
+      await user.save();
+      await redis.set(user._id, JSON.stringify(user) as any);
+
+      res.status(201).json({ isDownloadTrue, user });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
