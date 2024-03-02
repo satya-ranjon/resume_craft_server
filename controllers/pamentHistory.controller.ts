@@ -10,6 +10,8 @@ interface ICreatePamentHistory {
   downloadlimite: number;
   timeLimite: number;
   amount: number;
+  transactionId: string;
+  price: string;
 }
 
 //* if user downloadlimite timeLimite over then set just new downloadlimite or timeLimite not over then current downloadlimite + new downloadlimite
@@ -17,10 +19,17 @@ interface ICreatePamentHistory {
 export const createPamentHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { type, downloadlimite, timeLimite, amount } =
+      const { type, downloadlimite, timeLimite, amount, transactionId, price } =
         req.body as ICreatePamentHistory;
 
-      if (!type || !downloadlimite || !timeLimite || !amount) {
+      if (
+        !type ||
+        !downloadlimite ||
+        !timeLimite ||
+        !amount ||
+        !transactionId ||
+        price
+      ) {
         return next(new ErrorHandler("Invalid Data", 400));
       }
 
@@ -30,6 +39,8 @@ export const createPamentHistory = catchAsyncError(
         downloadlimite,
         timeLimite,
         amount,
+        transactionId,
+        price,
       });
 
       const history = await pamentHistory.save();
