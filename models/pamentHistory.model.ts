@@ -6,6 +6,8 @@ export interface IPamentHistory extends Document {
   downloadlimite: number;
   timeLimite: number;
   amount: number;
+  transactionId: string;
+  price: string;
 }
 
 const pamentHistorySchema = new Schema<IPamentHistory>(
@@ -18,9 +20,19 @@ const pamentHistorySchema = new Schema<IPamentHistory>(
     },
     downloadlimite: {
       type: Number,
+      required: true,
     },
     timeLimite: {
       type: Number,
+      required: true,
+    },
+    transactionId: {
+      type: String,
+      required: true,
+    },
+    price: {
+      type: String,
+      required: true,
     },
   },
   { timestamps: true, versionKey: false }

@@ -13,6 +13,7 @@ import coverLetterRoute from "../routes/coverLetter.route";
 import cookieParser from "cookie-parser";
 import blogRouter from "../routes/blog.route";
 import pamentHistoryRoute from "../routes/pamentHistory.route";
+import paymentRoute from "../routes/payment.route";
 
 configDotenv();
 
@@ -32,7 +33,8 @@ app.use("/coverLetter/v1", coverLetterRoute);
 app.use("/user/v1", userRoute);
 app.use("/history/v1", historyRoute);
 app.use("/blog/v1", blogRouter);
-app.use("/paments/v1", pamentHistoryRoute);
+app.use("/payment/v1/history", pamentHistoryRoute);
+app.use("/payment/v1", paymentRoute);
 
 // handling undefined routes
 app.use(catchAllUndefinedRoutes);
