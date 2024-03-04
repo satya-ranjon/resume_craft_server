@@ -7,7 +7,7 @@ export const allPayment = catchAsyncError(
   async (_req: Request, res: Response, next: NextFunction) => {
     try {
       const payment = await PaymentModel.find();
-      res.status(201).json({ success: true, payment: payment });
+      res.status(201).json(payment);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
@@ -58,16 +58,21 @@ export const editPayment = catchAsyncError(
     try {
       const { id } = req.params;
       const paymentData: Pricing = req.body;
+
       const updatedPayment = await PaymentModel.findByIdAndUpdate(
         id,
         paymentData,
         { new: true }
       );
-      if (updatedPayment) {
-        res.json(updatedPayment);
-      } else {
-        return next(new ErrorHandler("Payment not found", 400));
+
+      if (updatedPayment?.active) {
+        await PaymentModel.updateMany(
+          { _id: { $ne: updatedPayment._id } },
+          { active: false }
+        );
       }
+
+      res.status(201).json({ success: true, message: "Successfully Update" });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
