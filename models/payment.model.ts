@@ -13,12 +13,16 @@ export interface Pricing extends Document {
   monthly: {
     premium: PricingDetail;
     enterprise: PricingDetail;
-    discount?: number;
+    discount?: {
+      amount: number;
+    };
   };
   yearly: {
     premium: PricingDetail;
     enterprise: PricingDetail;
-    discount?: number;
+    discount?: {
+      amount: number;
+    };
   };
   active: boolean;
 }
@@ -38,7 +42,9 @@ const paymentSchema = new Schema<Pricing>(
         price: { type: Number, required: true },
         download: { type: Number, required: true },
       },
-      discount: { type: Number, required: false },
+      discount: {
+        amount: { type: Number, required: false },
+      },
     },
     yearly: {
       free: {
@@ -53,12 +59,26 @@ const paymentSchema = new Schema<Pricing>(
         price: { type: Number, required: true },
         download: { type: Number, required: true },
       },
-      discount: { type: Number, required: false },
+      discount: {
+        amount: { type: Number, required: false },
+      },
     },
     active: { type: Boolean, required: true, default: false },
   },
   { timestamps: true, versionKey: false }
 );
+
+paymentSchema.pre<Pricing>("save", async function (next) {
+  if (this.isNew && this.active) {
+    //* If a new Payment is being created and it's active then
+    //* Deactivate all other existing payments
+    await this.model("Payment").updateMany(
+      { _id: { $ne: this._id } },
+      { $set: { active: false } }
+    );
+  }
+  next();
+});
 
 const PaymentModel = model<Pricing>("Payment", paymentSchema);
 

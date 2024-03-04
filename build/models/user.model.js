@@ -37,8 +37,14 @@ const userSchema = new mongoose_1.default.Schema({
         select: false,
     },
     avatar: {
-        public_id: String,
-        url: String,
+        public_id: {
+            type: String,
+            default: "",
+        },
+        url: {
+            type: String,
+            default: "",
+        },
     },
     role: {
         type: String,
@@ -48,7 +54,27 @@ const userSchema = new mongoose_1.default.Schema({
         type: Boolean,
         default: false,
     },
-}, { timestamps: true });
+    plan: {
+        type: {
+            type: String,
+            required: true,
+            enum: ["premium", "enterprise", "free"],
+            default: "free",
+        },
+        downloadlimite: {
+            type: Number,
+            default: 10,
+        },
+        checkoutDate: {
+            type: Number,
+            default: Date.now,
+        },
+        timeLimite: {
+            type: Number,
+            default: 30,
+        },
+    },
+}, { timestamps: true, versionKey: false });
 // Hash Password before saving
 userSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {

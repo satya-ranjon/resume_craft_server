@@ -11,4 +11,5 @@ userRoute.patch("/upload-profile-picture", auth_1.isAuthenticated, user_controll
 userRoute.patch("/info-change", auth_1.isAuthenticated, user_controller_1.userInfoChange);
 userRoute.post("/create/share", auth_1.isAuthenticated, user_controller_1.generateTemplateShare);
 userRoute.get("/share/data/:id", user_controller_1.getShareTemplate);
+userRoute.get("/download", auth_1.isAuthenticated, user_controller_1.downloadTemplae);
 exports.default = userRoute;

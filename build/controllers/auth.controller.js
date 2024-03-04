@@ -102,6 +102,38 @@ exports.userLogin = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(v
         if (!isPasswordMatch) {
             return next(new errorHandler_1.default("Invalid email or password", 400));
         }
+        const timeLimiteDifference = Date.now() - user.plan.checkoutDate;
+        const IsdaysDifferenceTrue = Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+            user.plan.timeLimite;
+        const IsAfterThertyDay = Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) > 30;
+        const isFreeType = user.plan.type === "free";
+        const isNotFreeType = user.plan.type !== "free" &&
+            IsAfterThertyDay &&
+            user.plan.downloadlimite === 0;
+        const newDataPlan = {
+            type: IsdaysDifferenceTrue && isFreeType
+                ? "free"
+                : isNotFreeType
+                    ? "free"
+                    : user.plan.type,
+            downloadlimite: IsdaysDifferenceTrue && isFreeType
+                ? 10
+                : isNotFreeType
+                    ? 10
+                    : user.plan.downloadlimite,
+            timeLimite: IsdaysDifferenceTrue && isFreeType
+                ? 30
+                : isNotFreeType
+                    ? 30
+                    : user.plan.timeLimite,
+            checkoutDate: IsdaysDifferenceTrue && isFreeType
+                ? Date.now()
+                : isNotFreeType
+                    ? Date.now()
+                    : user.plan.checkoutDate,
+        };
+        user.plan = newDataPlan;
+        yield user.save();
         (0, jwt_1.sendToken)(user, 200, res);
     }
     catch (error) {
@@ -155,6 +187,40 @@ exports.updateAccessToken = (0, error_1.catchAsyncError)((req, res, next) => __a
             return next(new errorHandler_1.default("Could not find refresh token", 400));
         }
         const user = JSON.parse(session);
+        const timeLimiteDifference = Date.now() - user.plan.checkoutDate;
+        const IsdaysDifferenceTrue = Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+            user.plan.timeLimite;
+        const IsAfterThertyDay = Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) > 30;
+        const isFreeType = user.plan.type === "free";
+        const isNotFreeType = user.plan.type !== "free" &&
+            IsAfterThertyDay &&
+            user.plan.downloadlimite === 0;
+        const newDataPlan = {
+            type: IsdaysDifferenceTrue && isFreeType
+                ? "free"
+                : isNotFreeType
+                    ? "free"
+                    : user.plan.type,
+            downloadlimite: IsdaysDifferenceTrue && isFreeType
+                ? 10
+                : isNotFreeType
+                    ? 10
+                    : user.plan.downloadlimite,
+            timeLimite: IsdaysDifferenceTrue && isFreeType
+                ? 30
+                : isNotFreeType
+                    ? 30
+                    : user.plan.timeLimite,
+            checkoutDate: IsdaysDifferenceTrue && isFreeType
+                ? Date.now()
+                : isNotFreeType
+                    ? Date.now()
+                    : user.plan.checkoutDate,
+        };
+        if (IsdaysDifferenceTrue || isNotFreeType) {
+            const updateUser = yield user_model_1.default.findOneAndUpdate({ _id: user._id }, Object.assign(Object.assign({}, user), { plan: newDataPlan }), { new: true, upsert: true });
+            yield redis_1.redis.set(user._id, JSON.stringify(updateUser));
+        }
         const accessToken = jsonwebtoken_1.default.sign({ id: user._id }, process.env.ACCESS_TOKEN_SECRET || "", {
             expiresIn: "5m",
         });

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getShareTemplate = exports.generateTemplateShare = exports.userInfoChange = exports.uploadProfilePicture = void 0;
+exports.downloadTemplae = exports.getShareTemplate = exports.generateTemplateShare = exports.userInfoChange = exports.uploadProfilePicture = void 0;
 const multerHandle_1 = __importDefault(require("../middlewares/multerHandle"));
 const user_model_1 = __importDefault(require("../models/user.model"));
 const cloudinary_services_1 = require("../services/cloudinary.services");
@@ -107,6 +107,56 @@ exports.getShareTemplate = (0, error_1.catchAsyncError)((req, res, next) => __aw
                 .json({ success: true, type: "coverletter", data: coverLetterData });
         }
         return next(new errorHandler_1.default("Invalid cradintial", 400));
+    }
+    catch (error) {
+        return next(new errorHandler_1.default(error.message, 400));
+    }
+}));
+// * if User plan type is not free and timeLimite > 30 and downloadlimite === 0 then after 30 days user plan is type =  free and set downloadlimite = 10
+exports.downloadTemplae = (0, error_1.catchAsyncError)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _c;
+    try {
+        const user = yield user_model_1.default.findById((_c = req.user) === null || _c === void 0 ? void 0 : _c._id);
+        if (!user) {
+            return next(new errorHandler_1.default("User Not found", 400));
+        }
+        const timeLimiteDifference = Date.now() - user.plan.checkoutDate;
+        const IsdaysDifferenceTrue = Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) >
+            user.plan.timeLimite;
+        const IsAfterThertyDay = Math.floor(timeLimiteDifference / (1000 * 60 * 60 * 24)) > 30;
+        const isFreeType = user.plan.type === "free";
+        const isNotFreeType = user.plan.type !== "free" &&
+            IsAfterThertyDay &&
+            user.plan.downloadlimite === 0;
+        const isDownloadTrue = user.plan.downloadlimite > 0;
+        const newDataPlan = {
+            type: IsdaysDifferenceTrue && isFreeType
+                ? "free"
+                : isNotFreeType
+                    ? "free"
+                    : user.plan.type,
+            downloadlimite: IsdaysDifferenceTrue && isFreeType
+                ? 10
+                : isNotFreeType
+                    ? 10
+                    : user.plan.downloadlimite > 0
+                        ? user.plan.downloadlimite - 1
+                        : user.plan.downloadlimite,
+            timeLimite: IsdaysDifferenceTrue && isFreeType
+                ? 30
+                : isNotFreeType
+                    ? 30
+                    : user.plan.timeLimite,
+            checkoutDate: IsdaysDifferenceTrue && isFreeType
+                ? Date.now()
+                : isNotFreeType
+                    ? Date.now()
+                    : user.plan.checkoutDate,
+        };
+        user.plan = newDataPlan;
+        yield user.save();
+        yield redis_1.redis.set(user._id, JSON.stringify(user));
+        res.status(201).json({ isDownloadTrue, user });
     }
     catch (error) {
         return next(new errorHandler_1.default(error.message, 400));
