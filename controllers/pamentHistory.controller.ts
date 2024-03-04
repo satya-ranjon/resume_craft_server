@@ -28,7 +28,7 @@ export const createPamentHistory = catchAsyncError(
         !timeLimite ||
         !amount ||
         !transactionId ||
-        price
+        !price
       ) {
         return next(new ErrorHandler("Invalid Data", 400));
       }
@@ -85,7 +85,9 @@ export const createPamentHistory = catchAsyncError(
 export const getAllPamentHistory = catchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const history = await PamentHistoryModel.find({ user: req.user?._id });
+      const history = await PamentHistoryModel.find({
+        user: req.user?._id,
+      }).sort({ createdAt: -1 });
 
       res.status(201).json({ success: true, history: history });
     } catch (error: any) {
