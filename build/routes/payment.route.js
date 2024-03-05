@@ -19,7 +19,7 @@ const payment_controller_1 = require("../controllers/payment.controller");
 const auth_1 = require("../middlewares/auth");
 const stripe = require("stripe")(process.env.SCRIPE_SECRET_KEY);
 const paymentRoute = express_1.default.Router();
-paymentRoute.get("/single", auth_1.isAuthenticated, payment_controller_1.singlePayment);
+paymentRoute.get("/single", payment_controller_1.singlePayment);
 paymentRoute.get("/", auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), payment_controller_1.allPayment);
 paymentRoute.post("/", auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), payment_controller_1.creaetPayment);
 paymentRoute.delete("/:id", auth_1.isAuthenticated, (0, auth_1.authorizeRoles)("admin"), payment_controller_1.deletePayment);

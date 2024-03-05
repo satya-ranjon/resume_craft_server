@@ -13,7 +13,7 @@ const stripe = require("stripe")(process.env.SCRIPE_SECRET_KEY);
 
 const paymentRoute = express.Router();
 
-paymentRoute.get("/single", isAuthenticated, singlePayment);
+paymentRoute.get("/single", singlePayment);
 
 paymentRoute.get("/", isAuthenticated, authorizeRoles("admin"), allPayment);
 paymentRoute.post("/", isAuthenticated, authorizeRoles("admin"), creaetPayment);
